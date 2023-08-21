@@ -1,12 +1,18 @@
 package com.sec.domain;
 
+import com.alibaba.fastjson.annotation.JSONField;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * description :
@@ -21,10 +27,37 @@ public class LoginUser implements UserDetails {
 
     private SysUser sysUser;
 
+    // 存储权限信息
+    private List<String> permissions;
+
+    // 授权信息
+    @JSONField(serialize = false) // 不需要序列化
+    private List<SimpleGrantedAuthority> authorities;
+
+    public LoginUser(SysUser sysUser, List<String> permissions) {
+        this.sysUser = sysUser;
+        this.permissions = permissions;
+    }
+
     // 获取用户被授予的权限，用于实现访问控制
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        if (authorities != null) {
+            return authorities;
+        } else {
+            authorities = new ArrayList<>();
+        }
+
+        for (String permission : permissions) {
+            if (StringUtils.isNotBlank(permission)) {
+                SimpleGrantedAuthority authority = new SimpleGrantedAuthority(permission);
+                authorities.add(authority);
+            }
+        }
+
+//        authorities = permissions.stream()
+//                .filter(item -> null != item && "".equals(item)).map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+        return authorities;
     }
 
     // 获取用户的密码，一般用于进行密码验证

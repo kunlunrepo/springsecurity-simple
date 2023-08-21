@@ -1,6 +1,7 @@
 package com.sec.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.sec.dao.MenuMapper;
 import com.sec.dao.UserMapper;
 import com.sec.domain.LoginUser;
 import com.sec.domain.SysUser;
@@ -10,6 +11,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -24,6 +28,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Autowired
     private UserMapper userMapper;
 
+    @Autowired
+    private MenuMapper menuMapper;
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
@@ -37,7 +44,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             throw new RuntimeException("用户名或密码错误");
         }
 
+        // 查询用户权限信息
+        // List<String> list = new ArrayList<>(Arrays.asList("test"));
+
+        List<String> list = menuMapper.selectPermsByUserId(user.getUserId());
+
+
         // 方法的返回值是UserDetails 需要返回自定义的实现类
-        return new LoginUser(user);
+        return new LoginUser(user, list);
     }
 }
