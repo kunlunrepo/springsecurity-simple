@@ -1,6 +1,7 @@
 package com.sec.domain;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -64,10 +65,12 @@ public class LoginUser implements UserDetails {
             }
         }
         // 处理角色对应的权限信息
-        for (String role : roles) {
-            if (StringUtils.isNotBlank(role)) {
-                SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_"+role);
-                authorities.add(authority);
+        if (CollectionUtils.isNotEmpty(roles)) {
+            for (String role : roles) {
+                if (StringUtils.isNotBlank(role)) {
+                    SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_"+role);
+                    authorities.add(authority);
+                }
             }
         }
 

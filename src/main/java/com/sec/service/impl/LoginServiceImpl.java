@@ -3,6 +3,7 @@ package com.sec.service.impl;
 import com.sec.domain.LoginUser;
 import com.sec.domain.ResponseResult;
 import com.sec.domain.SysUser;
+import com.sec.exception.CaptchaNotMatchException;
 import com.sec.service.LoginService;
 import com.sec.utils.JwtUtil;
 import com.sec.utils.RedisCache;
@@ -25,6 +26,8 @@ import java.util.Objects;
  */
 @Service
 public class LoginServiceImpl implements LoginService {
+
+    private static final String CAPTCHA_CODE_KEY = "sec:captcha:";
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -75,5 +78,33 @@ public class LoginServiceImpl implements LoginService {
         // 删除redis的用户信息
         redisCache.deleteObject("login:" + userId);
         return new ResponseResult(200, "注销成功");
+    }
+
+    // 带验证码登录
+    @Override
+    public String login(String username, String password, String code, String uuid) {
+        // 从redis中获取验证码
+        String verifyKey = CAPTCHA_CODE_KEY + uuid;
+        String captcha = redisCache.getCacheObject(verifyKey);
+        redisCache.deleteObject(captcha);
+
+        if (captcha == null || !code.equalsIgnoreCase(captcha)) {
+            throw new CaptchaNotMatchException("验证码错误！");
+        }
+
+        // 该方法会去调用 loadUserByUsername 方法
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(username, password)
+        );
+
+        // 如果认证通过，使用userId生成一个JWT，并将其返回
+        LoginUser loginUser = (LoginUser) authentication.getPrincipal();
+
+        String userId = loginUser.getSysUser().getUserId().toString();
+        String jwt = JwtUtil.createJWT(userId);
+
+        redisCache.setCacheObject("login:"+userId, loginUser);
+
+        return jwt;
     }
 }

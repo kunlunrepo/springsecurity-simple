@@ -14,4 +14,6 @@ public interface LoginService {
     ResponseResult login(SysUser sysUser);
 
     ResponseResult logout();
+
+    String login(String username, String password, String code, String uuid);
 }
