@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
  * @author kunlunrepo
  * date :  2023-08-14 16:03
  */
-@RestController
+//@RestController
 public class LoginController {
 
     @Autowired

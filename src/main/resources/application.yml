@@ -19,6 +19,19 @@ spring:
         max-wait: -1
         max-idle: 35
         min-idle: 5
+  # 模板
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    encoding: UTF-8
+    mode: HTML
+    cache: false
+  # 安全框架
+  security:
+    user:
+      name: test
+      password: 123456
+      roles: admin,user
 
 mybatis-plus:
   global-config:
