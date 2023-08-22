@@ -67,5 +67,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         // 将自定义认证过滤器,添加到过滤器链中
         http.addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class);
+
+        // 允许跨域
+        http.cors();
     }
 }
