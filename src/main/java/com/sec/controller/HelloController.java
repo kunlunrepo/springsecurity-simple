@@ -23,9 +23,29 @@ public class HelloController {
 
     // 拥有system:role:list才能访问
     @GetMapping("/ok")
-    @PreAuthorize("hasAuthority('system:role:list')")
+//    @PreAuthorize("hasAuthority('system:role:list')")
+    @PreAuthorize("@my_ex.hasAuthority('system:role:list')")
     public String ok() {
         return "ok";
+    }
+
+    @RequestMapping("/yes")
+    public String yes() {
+        return "yes";
+    }
+
+    @GetMapping("/level1")
+    // 当前用户是common角色，并且具有 或 权限
+    @PreAuthorize("hasRole('common') AND hasAnyAuthority('system:role:list', 'system:user:list')")
+    public String level1() {
+        return "level1 page";
+    }
+
+    @GetMapping("/level2")
+    // 当前用户拥有admin或common角色，或者具有system:role:list权限
+    @PreAuthorize("hasAnyRole('admin','common') OR hasAuthority('system:role:list')")
+    public String level2() {
+        return "level2 page";
     }
 
 }

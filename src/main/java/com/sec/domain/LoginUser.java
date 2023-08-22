@@ -30,6 +30,9 @@ public class LoginUser implements UserDetails {
     // 存储权限信息
     private List<String> permissions;
 
+    // 存储角色信息
+    private List<String> roles;
+
     // 授权信息
     @JSONField(serialize = false) // 不需要序列化
     private List<SimpleGrantedAuthority> authorities;
@@ -37,6 +40,12 @@ public class LoginUser implements UserDetails {
     public LoginUser(SysUser sysUser, List<String> permissions) {
         this.sysUser = sysUser;
         this.permissions = permissions;
+    }
+
+    public LoginUser(SysUser sysUser, List<String> permissions, List<String> roles) {
+        this.sysUser = sysUser;
+        this.permissions = permissions;
+        this.roles = roles;
     }
 
     // 获取用户被授予的权限，用于实现访问控制
@@ -47,10 +56,17 @@ public class LoginUser implements UserDetails {
         } else {
             authorities = new ArrayList<>();
         }
-
+        // 处理权限信息
         for (String permission : permissions) {
             if (StringUtils.isNotBlank(permission)) {
                 SimpleGrantedAuthority authority = new SimpleGrantedAuthority(permission);
+                authorities.add(authority);
+            }
+        }
+        // 处理角色对应的权限信息
+        for (String role : roles) {
+            if (StringUtils.isNotBlank(role)) {
+                SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_"+role);
                 authorities.add(authority);
             }
         }
